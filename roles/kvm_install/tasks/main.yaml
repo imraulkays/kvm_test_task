@@ -1,0 +1,21 @@
+- name: install packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - qemu-kvm
+    - libvirt-bin
+    - bridge-utils
+    - virtinst
+    - cloud-init
+    - cloud-image-utils
+
+- name: create bridge interface
+  template: 
+    src: bro0.cfg.j2
+    dest: /etc/network/interfaces.d/br0.cfg
+
+# /etc/init.d/networking restart is deprecated, so we need to use such chrutch
+- name: restart networking
+  shell: "ifdown -a && ifup -a"
