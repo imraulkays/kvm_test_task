@@ -11,6 +11,7 @@
   gather_facts: no
   roles:
     - vm_run
+    - init_setup
     - firewall
 
 - hosts: db
