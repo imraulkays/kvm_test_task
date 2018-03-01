@@ -1,0 +1,16 @@
+hostname:		"{{ inventory_hostname }}"
+
+vm_name:		"{{ inventory_hostname }}"
+vm_ram:			1024
+
+master_image_url:		"http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img"
+master_image_filename:		"{{ master_image_url | basename }}"
+master_images_dir:		"/var/lib/libvirt/images/"
+master_image_file:		"{{ master_images_dir }}{{ master_image_filename }}"
+
+vm_images_dir:			"{{ master_images_dir }}{{ vm_name }}/"
+vm_userdata_file:		"{{ vm_images_dir }}user-data"
+vm_metadata_file:		"{{ vm_images_dir }}meta-data"
+vm_network_config_file:		"{{ vm_images_dir }}network-config"
+vm_userdata_image:		"{{ vm_images_dir }}seed.iso"
+vm_image_file:			"{{ vm_images_dir }}{{ master_image_filename }}"

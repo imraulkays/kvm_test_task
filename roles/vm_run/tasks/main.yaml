@@ -1,0 +1,72 @@
+- name: check if VM exists
+  shell: "/usr/bin/virsh list | grep {{ vm_name }} | wc -l"
+  register: vm_exist
+  delegate_to: localhost
+
+#- name: debug
+#  debug:
+#    msg: "{{ vm_exist }}"
+#  when: vm_exist.stdout == 0
+
+- block:
+
+  - name: generate rsa key for user running ansible
+    user: 
+      name: "{{ lookup('env','USER') }}"
+      generate_ssh_key: yes
+    register: key
+    run_once: true
+
+  - name:  download master image
+    get_url:
+      url:	"{{ master_image_url }}"
+      dest:	"{{ master_image_file }}"
+  
+  - name: create directory for vm images
+    file:
+      path:	"{{ vm_images_dir }}"
+      state:	directory
+  
+  - name: copy master image to vm image
+    copy:
+      src: "{{ master_image_file }}"
+      dest: "{{ vm_image_file }}"
+  
+  - name: create userdata script
+    template:
+      src: user-data.j2
+      dest: "{{ vm_userdata_file }}"
+  
+  - name: create metadata
+    template:
+      src: meta-data.j2
+      dest: "{{ vm_metadata_file }}"
+
+  - name: create network-config
+    template:
+      src: network-config.j2
+      dest: "{{ vm_network_config_file }}"
+  
+  - name: covert userdata script to image
+    shell: "genisoimage  -output {{ vm_userdata_image }} -volid cidata -joliet -rock {{ vm_userdata_file }} {{ vm_metadata_file }} {{ vm_network_config_file }}"
+  
+  - name: RUN VM
+    shell: "virt-install --name={{ vm_name }} --ram={{ vm_ram }} --graphics=none --disk={{ vm_image_file }} --import --disk={{ vm_userdata_image }},device=cdrom --network bridge=virbr0,model=virtio --noautoconsole"
+
+  - name: wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ ansible_ssh_host }}"
+      search_regex: OpenSSH
+      delay: 30
+
+  delegate_to: localhost
+  when: vm_exist.stdout == "0"
+
+- name: wait until cloud-init finish installing packages
+  raw: test -f /var/lib/cloud/instance/boot-finished
+  retries: 20
+  register: cmd_res
+  changed_when: false
+  until: cmd_res | success
+

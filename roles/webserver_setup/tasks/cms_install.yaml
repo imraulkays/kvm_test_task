@@ -1,0 +1,43 @@
+- name: check if cms is already installed
+  stat: 
+    path: "{{ CMS_installed_file }}"
+  register: installed
+  run_once: true
+
+- block:
+  - name: extract bolt
+    unarchive:
+      src: "{{ bolt_download_url }}"
+      dest: "{{ CMS_directory }}"
+      remote_src: yes
+      extra_opts: ['--strip-components=1']
+
+  - name: init bolt
+    shell: "php app/nut init"
+    args: 
+      chdir: "{{ CMS_directory }}"
+
+  - name: genearte config.yaml
+    template:
+      src: config.yml.j2
+      dest: "{{ CMS_config_file }}"
+
+  - name: fill database
+    shell: "php app/nut -n database:update"
+    args:
+      chdir: "{{ CMS_directory }}"
+
+  - name: add root user to cms
+    shell: "php app/nut -n user:add {{ bolt_root_user }} {{ bolt_root_user }} {{ bolt_root_email }} {{ bolt_root_password }} root"
+    args:
+      chdir: "{{ CMS_directory }}"
+
+  - name: create file installed
+    file:
+      path: "{{ CMS_installed_file }}"
+      state: touch
+
+  run_once: true      
+  become: true
+  become_user: "{{ CMS_username }}"
+  when: installed.stat.exists == False

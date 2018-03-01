@@ -1,0 +1,28 @@
+CMS_username:		cms
+CMS_user_home:		"/home/{{ CMS_username }}"
+CMS_site_hostname:	"example.com"
+CMS_directory:           "{{ CMS_user_home }}/{{ CMS_site_hostname }}"
+CMS_installed_file:	"{{ CMS_directory }}/installed"
+CMS_config_file:	"{{ CMS_directory }}/app/config/config.yml"
+
+fpm_pool_directory:	"/etc/php/7.0/fpm/pool.d/"
+fpm_pool_file:		"{{ fpm_pool_directory }}/{{ CMS_username }}.conf"
+fpm_socket_file:	"/run/php/php7.0-{{ CMS_username }}-fpm.sock"
+
+nginx_vhosts_directory:	"/etc/nginx/sites-enabled/"
+nginx_CMS_vhost_file:	"{{ nginx_vhosts_directory }}/{{ CMS_site_hostname }}.conf"
+
+bolt_download_url:	"https://bolt.cm/distribution/bolt-latest.tar.gz"
+
+
+
+
+
+lsyncd_dirs:
+  lsyncd_conf_dir:	"/etc/lsyncd/"
+  lsyncd_conf_d_dir:	"/etc/lsyncd/conf.d"
+  lsyncd_log_dir:	"/var/log/lsyncd"
+
+lsyncd_conf_file:	"/etc/lsyncd/lsyncd.conf.lua"
+lsyncd_log_file:	"/var/log/lsyncd/lsyncd.log"
+lsyncd_status_file:	"/var/log/lsyncd/lsyncd.status"

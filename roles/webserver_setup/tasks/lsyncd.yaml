@@ -1,0 +1,40 @@
+- name: generate  rsa key for root
+  user:
+    name: root
+    generate_ssh_key: yes
+  register: root_user
+
+- name: write pubkeys to authorized_keys
+  authorized_key:
+    user: "{{ CMS_username }}"
+    state: present
+    key: "{{ hostvars[item]['root_user']['ssh_public_key'] }}"
+  with_items: "{{ groups['web'] }}"
+
+- name: create conf dir
+  file:
+    path: "{{ item.value }}"
+    state: directory
+    mode: 0755
+  with_dict: "{{ lsyncd_dirs }}"
+
+- name: create lsync main config
+  template:
+    src: lsyncd.conf.lua.j2
+    dest: "{{ lsyncd_conf_file }}"
+  register: lsyncd_conf
+    
+- name: create sync for each server
+  template:
+    src: lsyncd.sync.lua.j2
+    dest: "{{ lsyncd_dirs.lsyncd_conf_d_dir }}/{{ item }}.lua"
+  with_items: "{{ groups['web'] }}"
+  when: item != inventory_hostname
+  register: lsyncd_conf_d
+
+## Not done by handlers because we need restart lsyncd before installing CMS
+- name: restart lsyncd
+  service:
+    name: lsyncd
+    state: restarted
+  when: lsyncd_conf.changed or lsyncd_conf_d.changed

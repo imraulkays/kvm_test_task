@@ -1,0 +1,13 @@
+#cloud-config
+hostname: {{ hostname }}
+
+users:
+  - name: ubuntu
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+    ssh-authorized-keys:
+    - {{ key.ssh_public_key }}
+
+packages:
+ - python-minimal

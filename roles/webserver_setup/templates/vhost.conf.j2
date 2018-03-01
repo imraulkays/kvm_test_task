@@ -1,0 +1,73 @@
+server {
+        server_name {{ CMS_site_hostname }};
+        root {{ CMS_directory }}/public;
+        index index.php;
+
+        location / {
+                try_files                     $uri $uri/ /index.php?$query_string;
+        }
+
+        location = /bolt {
+                try_files                     $uri /index.php?$query_string;
+        }
+
+        location ^~ /bolt/ {
+                try_files                     $uri /index.php?$query_string;
+        }
+
+        location ^~ /thumbs {
+                try_files                     $uri /index.php; #?$query_string;
+
+                access_log                    off;
+                log_not_found                 off;
+                expires                       max;
+                add_header                    Pragma public;
+                add_header                    Cache-Control "public, mustrevalidate, proxy-revalidate";
+                add_header                    X-Koala-Status sleeping;
+        }
+
+        location ~* ^.+\.(?:atom|bmp|bz2|css|doc|eot|exe|gif|gz|ico|jpe?g|jpeg|jpg|js|map|mid|midi|mp4|ogg|ogv|otf|png|ppt|rar|rtf|svg|svgz|tar|tgz|ttf|wav|woff|xls|zip)$ {
+                access_log                    off;
+                log_not_found                 off;
+                expires                       max;
+                add_header                    Pragma public;
+                add_header                    Cache-Control "public, mustrevalidate, proxy-revalidate";
+                add_header                    X-Koala-Status eating;
+        }
+
+        location = /(?:favicon.ico|robots.txt) {
+                log_not_found                 off;
+                access_log                    off;
+        }
+
+        location ~ /index.php/(.*) {
+                rewrite ^/index.php/(.*) /$1 permanent;
+        }
+
+        location ~ /\. {
+                deny                          all;
+        }
+
+        location ~ /\.(htaccess|htpasswd)$ {
+                deny                          all;
+        }
+
+        location ~ /\.(?:db)$ {
+                deny                          all;
+        }
+
+        location ~* /(.*)\.(?:markdown|md|twig|yaml|yml)$ {
+                deny                          all;
+        }
+
+        location ~ [^/]\.php(/|$) {
+                try_files                     /index.php =404;
+                fastcgi_split_path_info       ^(.+?\.php)(/.*)$;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                fastcgi_param HTTP_PROXY      "";
+                fastcgi_param HTTPS           $https if_not_empty;
+                fastcgi_pass                  unix:{{ fpm_socket_file }};
+                include                       fastcgi_params;
+        }
+}
+

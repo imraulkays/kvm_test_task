@@ -1,0 +1,6 @@
+postgres_database:		cms
+postgres_user:			cms
+postgres_password:		passw0rd
+
+postgress_config_file:		/etc/postgresql/9.5/main/postgresql.conf
+postgress_hba_file:		/etc/postgresql/9.5/main/pg_hba.conf

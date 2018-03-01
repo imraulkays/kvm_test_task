@@ -1,0 +1,13 @@
+settings{
+  logfile    = "{{ lsyncd_log_file }}",
+  statusFile = "{{ lsyncd_status_file }}",
+}
+
+local confdir = "{{ lsyncd_dirs.lsyncd_conf_d_dir }}/"
+local entries = readdir( confdir )
+
+for name, isdir in pairs( entries ) do
+    if not isdir then
+        dofile( confdir .. name )
+    end
+end

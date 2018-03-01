@@ -1,0 +1,21 @@
+- hosts: all
+  gather_facts: no
+  roles: 
+    - read_vars
+
+- hosts: vm
+  gather_facts: no
+  roles:
+    - vm_run
+
+- hosts: db
+  roles:
+    - postgres_setup
+
+- hosts: web
+  roles:
+    - webserver_setup
+
+- hosts: localhost
+  roles:
+    - haproxy_setup

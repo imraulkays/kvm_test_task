@@ -1,0 +1,14 @@
+sync{
+    default.rsyncssh,
+    source      = "{{ hostvars[item]['CMS_dir']['path'] }}",
+    host        = "{{ hostvars[item]['CMS_user']['name'] }}@{{ hostvars[item]['ansible_ssh_host'] }}",
+    targetdir   = "{{ hostvars[item]['CMS_dir']['path'] }}",
+    delete	= 'running',
+    rsync={
+        rsh="/usr/bin/ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
+        _extra = { "-a" }
+        },
+    ssh={
+        _extra = { "-o StrictHostKeyChecking=no", "-o UserKnownHostsFile=/dev/null"},
+    }
+    }

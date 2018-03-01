@@ -1,0 +1,49 @@
+- name: install packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - nginx
+    - php-fpm
+    - php7.0-pgsql
+    - php7.0-xml
+    - php7.0-mbstring
+    - php7.0-intl
+    - lsyncd
+
+- name: create CMS user
+  user:
+    name: "{{ CMS_username }}"
+    home: "{{ CMS_user_home }}"
+    shell: /bin/bash
+  register: CMS_user
+
+## pool parameters except user and socket name are hardcoded, because there changing out of scope this task
+- name: create fpm pool for CMS user
+  template:
+    src: fpm-pool.j2
+    dest: "{{ fpm_pool_file }}"  
+  notify:
+    - "restart php-fpm"
+
+- name: create CMS directory
+  file:
+    path: "{{ CMS_directory }}"
+    state: directory
+    owner: "{{ CMS_username }}"
+    mode: 0755
+  register: CMS_dir
+
+- name: create nginx vhost
+  template:
+    src: vhost.conf.j2
+    dest: "{{ nginx_CMS_vhost_file }}"
+  notify:
+    - "restart nginx"
+
+- name: install cms
+  include: cms_install.yaml
+
+- name: include lsyncd
+  include: lsyncd.yaml
