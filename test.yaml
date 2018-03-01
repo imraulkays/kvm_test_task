@@ -7,6 +7,7 @@
   gather_facts: no
   roles:
     - vm_run
+    - firewall
 
 - hosts: db
   roles:

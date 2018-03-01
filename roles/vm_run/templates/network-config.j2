@@ -5,8 +5,8 @@ config:
      subnets:
         - type: static
           address: {{ ansible_ssh_host }}
-          netmask: 255.255.255.0
-          gateway: 192.168.122.1
+          netmask: {{ network_mask }}
+          gateway: {{ network_gateway }}
    - type: nameserver
      address:
        - 8.8.8.8

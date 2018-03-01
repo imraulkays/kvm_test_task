@@ -1,0 +1,10 @@
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [52:4920]
+{% for port in open_ports %}
+-A INPUT -s {{ network }} -p tcp --dport {{ port }} -j ACCEPT
+{% endfor %}
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -j DROP
+COMMIT

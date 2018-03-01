@@ -1,0 +1,11 @@
+- name: create firewall script
+  template: 
+    src: iptables.sh.j2
+    dest: "{{ iptables_rules }}"
+  notify:
+    - "restore iptables"
+- name: create restore on startup script
+  template:
+    src: iptables_restore.j2
+    dest: "{{ iptables_restore_script }}"
+    mode: 0755

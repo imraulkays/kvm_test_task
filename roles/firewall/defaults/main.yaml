@@ -1,0 +1,2 @@
+iptables_rules:			"/etc/iptables.rules"
+iptables_restore_script:	"/etc/network/if-pre-up.d/iptables"

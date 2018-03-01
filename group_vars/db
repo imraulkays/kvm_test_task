@@ -1,2 +1,3 @@
-oprn_ports:
+open_ports:
+  - 22
   - 5432
