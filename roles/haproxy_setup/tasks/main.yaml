@@ -9,6 +9,6 @@
 - name: generate haproxe.cfg
   template:
     src: haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
+    dest: "{{ haproxy_config }}"
   notify: 
     - "haproxy restart"

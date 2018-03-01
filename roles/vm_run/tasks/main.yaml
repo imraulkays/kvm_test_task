@@ -3,11 +3,6 @@
   register: vm_exist
   delegate_to: localhost
 
-#- name: debug
-#  debug:
-#    msg: "{{ vm_exist }}"
-#  when: vm_exist.stdout == 0
-
 - block:
 
   - name: generate rsa key for user running ansible

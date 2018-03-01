@@ -1,3 +1,0 @@
-# /etc/init.d/networking restart is deprecated, so we need to use such chrutch
-- name: restart networking
-  shell: "ifdown -a && ifup -a"
